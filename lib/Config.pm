@@ -15,16 +15,31 @@ use Bugzilla::Extension::NotifyGrove::Util;
 our $sortkey = 5000;
 
 sub get_param_list {
-    my ($class) = @_;
+	my ($class) = @_;
 
-    my @param_list = (
-    {
-        name => 'grove_url',
-        type => 't',
-        default => '',
-	checker => \&check_grove_url
-    },
-    );
+	my @param_list = (
+		{
+			name => 'grove_url',
+			type => 't',
+			default => '',
+			checker => \&check_grove_url
+		},
+		{
+			name => 'grove_service_name',
+			type => 't',
+			default => 'bugbot'
+		},
+		{
+			name => 'grove_service_url',
+			type => 't',
+			default => ''
+		},
+		{
+			name => 'grove_icon_url',
+			type => 't',
+			default => ''
+		}
+	);
     return @param_list;
 }
 

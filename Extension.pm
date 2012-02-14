@@ -17,67 +17,51 @@ use Bugzilla::User::Setting;
 use Bugzilla::Util qw(diff_arrays html_quote);
 use Bugzilla::Status qw(is_open_state);
 use Bugzilla::Install::Filesystem;
-use REST::Client;
- 
-# This is extensions/NotifyGrove/lib/Util.pm. I can load this here in my
-# Extension.pm only because I have a Config.pm.
 use Bugzilla::Extension::NotifyGrove::Util;
 
-use Data::Dumper;
+#use Data::Dumper;
 
 our $VERSION = '0.1';
 
 sub bug_end_of_create {
-    my ($self, $args) = @_;
+	my ($self, $args) = @_;
 
-    my $bug = $args->{'bug'};
-    
-    my $url = sprintf( '%s/show_bug.cgi?id=%d', Bugzilla->params->{ 'urlbase' }, $bug->id  );
-    my $user = Bugzilla->user;
-    my $msg = sprintf( 'New %s :: %s bug %d filed by %s.', $bug->product, $bug->component, $bug->id, $user->name );
+	my $bug = $args->{'bug'};
 
-    my $groveUrl = Bugzilla->params->{ 'grove_url' };
-    if ( $groveUrl ne '' )
-    {
-	    my $client = REST::Client->new();
-	    $client->POST( $groveUrl, $msg );
-    }
+	my $url = sprintf( '%s/show_bug.cgi?id=%d', Bugzilla->params->{ 'urlbase' }, $bug->id  );
+	my $user = Bugzilla->user;
+	my $msg = sprintf( 'New %s :: %s bug %d filed by %s.', $bug->product, $bug->component, $bug->id, $user->name );
+	post_grove_msg( $msg );
 }
 
 sub bug_end_of_update {
-    my ($self, $args) = @_;
-    
-    my ($bug, $old_bug, $timestamp, $changes) = 
-        @$args{qw(bug old_bug timestamp changes)};
-    
-    foreach my $field (keys %$changes) {
-        my $used_to_be = $changes->{$field}->[0];
-        my $now_it_is  = $changes->{$field}->[1];
-    }
+	my ($self, $args) = @_;
 
-    my $old_summary = $old_bug->short_desc;
-    my $status_message = 'updated';
-    if (my $status_change = $changes->{'bug_status'}) {
-        my $old_status = new Bugzilla::Status({ name => $status_change->[0] });
-        my $new_status = new Bugzilla::Status({ name => $status_change->[1] });
-        if ($new_status->is_open && !$old_status->is_open) {
-            $status_message = "re-opened";
-        }
-        if (!$new_status->is_open && $old_status->is_open) {
-            $status_message = "closed";
-        }
-    }
-    
-    my $qa_contact = defined($bug->qa_contact) ? $bug->qa_contact->name : '';
-    my $url = sprintf( '%s/show_bug.cgi?id=%d', Bugzilla->params->{ 'urlbase' }, $bug->id  );
-    my $msg = sprintf( 'Bug %s %s, %s, %s, %s, %s, %s', $url, $qa_contact, $bug->bug_severity, $bug->priority, $bug->version, $bug->bug_status, $bug->short_desc );
+	my ($bug, $old_bug, $timestamp, $changes) = 
+	@$args{qw(bug old_bug timestamp changes)};
 
-    my $groveUrl = Bugzilla->params->{ 'grove_url' };
-    if ( $groveUrl ne '' )
-    {
-	    my $client = REST::Client->new();
-	    $client->POST( $groveUrl, $msg );
-    }
+	foreach my $field (keys %$changes) {
+		my $used_to_be = $changes->{$field}->[0];
+		my $now_it_is  = $changes->{$field}->[1];
+	}
+
+	my $old_summary = $old_bug->short_desc;
+	my $status_message = 'updated';
+	if (my $status_change = $changes->{'bug_status'}) {
+		my $old_status = new Bugzilla::Status({ name => $status_change->[0] });
+		my $new_status = new Bugzilla::Status({ name => $status_change->[1] });
+		if ($new_status->is_open && !$old_status->is_open) {
+			$status_message = "re-opened";
+		}
+		if (!$new_status->is_open && $old_status->is_open) {
+			$status_message = "closed";
+		}
+	}
+
+	my $qa_contact = defined($bug->qa_contact) ? $bug->qa_contact->name : '';
+	my $url = sprintf( '%s/show_bug.cgi?id=%d', Bugzilla->params->{ 'urlbase' }, $bug->id  );
+	my $msg = sprintf( 'Bug %s %s, %s, %s, %s, %s, %s', $url, $qa_contact, $bug->bug_severity, $bug->priority, $bug->version, $bug->bug_status, $bug->short_desc );
+	post_grove_msg( $msg );
 }
 
 sub config_add_panels {
