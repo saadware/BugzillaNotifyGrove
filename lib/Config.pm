@@ -32,12 +32,12 @@ sub get_param_list {
 		{
 			name => 'grove_service_url',
 			type => 't',
-			default => ''
+			default => 'http://www.bugzilla.org'
 		},
 		{
 			name => 'grove_icon_url',
 			type => 't',
-			default => ''
+			default => 'http://www.bugzilla.org/img/bugzilla_icon.png'
 		}
 	);
     return @param_list;
