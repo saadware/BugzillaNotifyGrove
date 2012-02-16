@@ -9,17 +9,8 @@ package Bugzilla::Extension::NotifyGrove;
 use strict;
 use base qw(Bugzilla::Extension);
 
-use Bugzilla::Constants;
-use Bugzilla::Error;
-use Bugzilla::Group;
 use Bugzilla::User;
-use Bugzilla::User::Setting;
-use Bugzilla::Util qw(diff_arrays html_quote);
-use Bugzilla::Status qw(is_open_state);
-use Bugzilla::Install::Filesystem;
 use Bugzilla::Extension::NotifyGrove::Util;
-
-#use Data::Dumper;
 
 our $VERSION = '0.1';
 
